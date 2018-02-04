@@ -30,3 +30,16 @@ databaseChangeLog:
               - column:
                   name: owner_id
                   type: bigint
+
+  - changeSet:
+      id: createShortUrlIndex
+      author: clangenhoven
+      changes:
+      - createIndex:
+          columns:
+          - column:
+              name: short_url
+              type: varchar(50)
+          indexName: idx_short_url
+          tableName: url
+          unique: true
