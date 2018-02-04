@@ -20,6 +20,7 @@ repositories {
 
 dependencies {
     compile ratpack.dependency('guice')
+    compile ratpack.dependency("groovy")
     compile 'org.jdbi:jdbi3-core:3.0.1'
     compile 'org.jdbi:jdbi3-sqlobject:3.0.1'
     compile 'com.mchange:c3p0:0.9.5.2'

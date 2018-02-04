@@ -12,14 +12,31 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import com.clangenhoven.shortly.model.Url;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import ratpack.error.ClientErrorHandler;
+import ratpack.error.ServerErrorHandler;
 
 import javax.sql.DataSource;
+
+import static ratpack.groovy.Groovy.groovyTemplate;
 
 public class AppModule extends AbstractModule {
 
     @Override
     protected void configure() {
         bind(UrlHandler.class);
+        bind(ClientErrorHandler.class).toInstance((ctx, statusCode) -> {
+            ctx.getResponse().status(statusCode);
+            if (statusCode == 404) {
+                ctx.render(groovyTemplate("error404.html"));
+            } else if (statusCode == 401) {
+                ctx.render(groovyTemplate("error401.html"));
+            } else if (statusCode == 403) {
+                ctx.render(groovyTemplate("error403.html"));
+            }
+        });
+        bind(ServerErrorHandler.class).toInstance((ctx, error) -> {
+            ctx.render(groovyTemplate("error500.html"));
+        });
     }
 
     @Provides
