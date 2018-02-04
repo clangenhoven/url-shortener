@@ -25,6 +25,7 @@ dependencies {
     compile 'org.jdbi:jdbi3-sqlobject:3.0.1'
     compile 'com.mchange:c3p0:0.9.5.2'
     compile 'io.lettuce:lettuce-core:5.0.1.RELEASE'
+    compile 'ch.qos.logback:logback-classic:1.2.3'
 }
 
 liquibase {
@@ -38,4 +39,4 @@ liquibase {
     }
 }
 
-mainClassName = 'App'
+mainClassName = 'com.clangenhoven.shortly.App'
