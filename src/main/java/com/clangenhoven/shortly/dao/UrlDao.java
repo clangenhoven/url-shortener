@@ -10,7 +10,11 @@ import java.util.Optional;
 
 public interface UrlDao {
 
-    @SqlUpdate("insert into url (url, short_url, created, owner_id) values (:url, :shortUrl, :created, :ownerId)")
+    @SqlUpdate("update url set access_count = access_count + 1 where id = :id")
+    void incrementUsage(@Bind("id") Long id);
+
+    @SqlUpdate("insert into url (url, short_url, created, access_count, owner_id) " +
+            "values (:url, :shortUrl, :created, 0, :ownerId)")
     void insert(@Bind("url") String url,
                 @Bind("shortUrl") String shortUrl,
                 @Bind("created") LocalDateTime dateTime,

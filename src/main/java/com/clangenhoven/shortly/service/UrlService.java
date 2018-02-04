@@ -72,15 +72,16 @@ public class UrlService {
                     });
                     if (maybeUrl.isPresent()) {
                         logger.info("Found entry in cache for short url " + shortUrl);
+                        Blocking.exec(() -> urlDao.incrementUsage(maybeUrl.get().getId()));
                         callback.accept(maybeUrl);
                     } else {
                         Blocking.get(() -> urlDao.getByShortUrl(shortUrl))
                                 .then(o -> {
                                     if (o.isPresent()) {
                                         logger.info("Found entry in database for short url " + shortUrl);
-                                        Blocking.exec(() -> {
-                                            sync.setex(shortUrl, cacheTtl, objectMapper.writeValueAsString(o.get()));
-                                        });
+                                        Blocking.exec(() -> urlDao.incrementUsage(o.get().getId()));
+                                        Blocking.exec(() ->
+                                                sync.setex(shortUrl, cacheTtl, objectMapper.writeValueAsString(o.get())));
                                     } else {
                                         logger.info("Did not find entry in cache or database for short url " + shortUrl);
                                     }

@@ -33,6 +33,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: access_count
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
                   name: owner_id
                   type: bigint
 
