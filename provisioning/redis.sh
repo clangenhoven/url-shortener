@@ -23,6 +23,7 @@ sudo mkdir /etc/redis
 sudo cp /tmp/redis-${REDIS_VERSION}/redis.conf /etc/redis
 sudo sed -i "s/supervised no/supervised systemd/" /etc/redis/redis.conf
 sudo sed -i "s/dir \.\//dir \/var\/lib\/redis/" /etc/redis/redis.conf
+sudo sed -i "s/bind 127.0.0.1/bind 0.0.0.0/" /etc/redis/redis.conf
 
 # configure os settings for redis
 # see https://redis.io/topics/admin

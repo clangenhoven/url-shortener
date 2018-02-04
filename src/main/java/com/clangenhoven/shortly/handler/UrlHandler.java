@@ -1,5 +1,6 @@
 package com.clangenhoven.shortly.handler;
 
+import com.clangenhoven.shortly.model.Url;
 import com.clangenhoven.shortly.service.UrlService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -20,10 +21,11 @@ public class UrlHandler implements Handler {
     public void handle(Context ctx) throws Exception {
         urlService.lookupUrl(ctx.getRequest().getPath(), result -> {
             if (result.isPresent()) {
-                ctx.redirect(result.get());
+                Url url = result.get();
+                ctx.redirect(url.getUrl());
             } else {
                 ctx.notFound();
             }
-        }, ctx::error);
+        });
     }
 }

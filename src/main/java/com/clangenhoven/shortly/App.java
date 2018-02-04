@@ -5,7 +5,6 @@ import com.clangenhoven.shortly.config.DevelopmentConfig;
 import com.clangenhoven.shortly.handler.UrlHandler;
 import ratpack.guice.Guice;
 import ratpack.server.RatpackServer;
-import ratpack.session.SessionModule;
 
 import java.io.File;
 
@@ -19,7 +18,6 @@ public class App {
                 .registry(Guice.registry(bindings -> bindings
                         .module(DevelopmentConfig.class) // todo-chris: select config based on env variable
                         .module(AppModule.class)
-                        .module(SessionModule.class)
                         .bind(LifecycleAwareRedisClient.class)))
                 .handlers(chain -> chain
                         .get(":shortUrl", UrlHandler.class)
