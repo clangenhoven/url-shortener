@@ -1,6 +1,7 @@
 package com.clangenhoven.shortly.service;
 
 import com.clangenhoven.shortly.dao.UrlDao;
+import com.clangenhoven.shortly.model.CreateUrlRequest;
 import com.clangenhoven.shortly.model.Url;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -13,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import ratpack.exec.Blocking;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
 
 @Singleton
@@ -26,6 +29,7 @@ public class UrlService {
     private final UrlDao urlDao;
     private final StatefulRedisConnection<String, String> redisConnection;
     private final Integer cacheTtl;
+    private final Random rand;
 
     @Inject
     public UrlService(UrlDao urlDao,
@@ -34,6 +38,20 @@ public class UrlService {
         this.urlDao = urlDao;
         this.redisConnection = redisConnection;
         this.cacheTtl = cacheTtl;
+        this.rand = new Random(new Date().getTime());
+    }
+
+    public void createUrl(CreateUrlRequest request, long ownerId, Consumer<Optional<String>> callback) {
+        Blocking.get(() -> {
+            String shortUrl = request.getShortUrl() == null ? Long.toHexString(rand.nextLong()) : request.getShortUrl();
+            try {
+                urlDao.insert(request.getUrl(), shortUrl, ownerId);
+                return Optional.of(shortUrl);
+            } catch (Exception e) {
+                logger.error("Caught exception while trying to create short url", e);
+                return Optional.<String>empty();
+            }
+        }).then(callback::accept);
     }
 
     public void lookupUrl(String shortUrl, Consumer<Optional<Url>> callback) {

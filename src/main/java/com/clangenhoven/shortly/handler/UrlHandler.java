@@ -19,7 +19,7 @@ public class UrlHandler implements Handler {
 
     @Override
     public void handle(Context ctx) throws Exception {
-        urlService.lookupUrl(ctx.getRequest().getPath(), result -> {
+        urlService.lookupUrl(ctx.getPathTokens().get("shortUrl"), result -> {
             if (result.isPresent()) {
                 Url url = result.get();
                 ctx.redirect(url.getUrl());

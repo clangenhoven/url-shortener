@@ -1,5 +1,6 @@
 package com.clangenhoven.shortly;
 
+import com.clangenhoven.shortly.handler.UrlCreator;
 import com.clangenhoven.shortly.handler.UrlHandler;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -24,6 +25,7 @@ public class AppModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(UrlHandler.class);
+        bind(UrlCreator.class);
         bind(ClientErrorHandler.class).toInstance((ctx, statusCode) -> {
             ctx.getResponse().status(statusCode);
             if (statusCode == 404) {

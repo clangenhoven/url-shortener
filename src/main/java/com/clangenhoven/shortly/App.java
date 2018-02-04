@@ -2,6 +2,7 @@ package com.clangenhoven.shortly;
 
 import com.clangenhoven.shortly.client.LifecycleAwareRedisClient;
 import com.clangenhoven.shortly.config.DevelopmentConfig;
+import com.clangenhoven.shortly.handler.UrlCreator;
 import com.clangenhoven.shortly.handler.UrlHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class App {
                         .module(AppModule.class)
                         .bind(LifecycleAwareRedisClient.class)))
                 .handlers(chain -> chain
+                        .post("create", UrlCreator.class)
                         .get(":shortUrl", UrlHandler.class)
                 )
         );
