@@ -12,5 +12,6 @@ public class DevelopmentConfig extends AbstractModule {
         bind(String.class).annotatedWith(Names.named("jdbcUrl")).toInstance("jdbc:postgresql://127.0.0.1:5432/shortly");
         bind(String.class).annotatedWith(Names.named("jdbcUser")).toInstance("shortly");
         bind(String.class).annotatedWith(Names.named("jdbcPassword")).toInstance("6t]^yBgX?t{8b5k2?(3D");
+        bind(Integer.class).annotatedWith(Names.named("cacheTtl")).toInstance(300);
     }
 }

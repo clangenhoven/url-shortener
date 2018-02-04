@@ -5,6 +5,7 @@ import com.clangenhoven.shortly.model.Url;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import org.slf4j.Logger;
@@ -24,11 +25,15 @@ public class UrlService {
 
     private final UrlDao urlDao;
     private final StatefulRedisConnection<String, String> redisConnection;
+    private final Integer cacheTtl;
 
     @Inject
-    public UrlService(UrlDao urlDao, StatefulRedisConnection<String, String> redisConnection) {
+    public UrlService(UrlDao urlDao,
+                      StatefulRedisConnection<String, String> redisConnection,
+                      @Named("cacheTtl") Integer cacheTtl) {
         this.urlDao = urlDao;
         this.redisConnection = redisConnection;
+        this.cacheTtl = cacheTtl;
     }
 
     public void lookupUrl(String shortUrl, Consumer<Optional<Url>> callback) {
@@ -52,7 +57,7 @@ public class UrlService {
                                     if (o.isPresent()) {
                                         logger.info("Found entry in database for short url " + shortUrl);
                                         Blocking.exec(() -> {
-                                            sync.set(shortUrl, objectMapper.writeValueAsString(o.get()));
+                                            sync.setex(shortUrl, cacheTtl, objectMapper.writeValueAsString(o.get()));
                                         });
                                     } else {
                                         logger.info("Did not find entry in cache or database for short url " + shortUrl);
