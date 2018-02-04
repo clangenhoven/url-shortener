@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import ratpack.exec.Blocking;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
@@ -45,7 +48,8 @@ public class UrlService {
         Blocking.get(() -> {
             String shortUrl = request.getShortUrl() == null ? Long.toHexString(rand.nextLong()) : request.getShortUrl();
             try {
-                urlDao.insert(request.getUrl(), shortUrl, ownerId);
+                LocalDateTime localDateTime = OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
+                urlDao.insert(request.getUrl(), shortUrl, localDateTime, ownerId);
                 return Optional.of(shortUrl);
             } catch (Exception e) {
                 logger.error("Caught exception while trying to create short url", e);

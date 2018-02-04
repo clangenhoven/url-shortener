@@ -28,6 +28,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: created
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
                   name: owner_id
                   type: bigint
 
