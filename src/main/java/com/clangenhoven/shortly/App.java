@@ -28,7 +28,9 @@ public class App {
                         .bind(LifecycleAwareRedisClient.class)))
                 .handlers(chain -> chain
                         .post("create", UrlCreator.class)
-                        .get(":shortUrl", UrlHandler.class)
+                        .prefix("u", c ->
+                                c.get(":shortUrl", UrlHandler.class)
+                        )
                 )
         );
     }
