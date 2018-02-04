@@ -1,14 +1,41 @@
-apply plugin: 'java'
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'io.ratpack:ratpack-gradle:1.5.1'
+        classpath 'org.liquibase:liquibase-core:3.5.3'
+        classpath 'org.liquibase:liquibase-gradle-plugin:1.2.4'
+        classpath 'org.yaml:snakeyaml:1.19'
+        classpath 'org.postgresql:postgresql:42.2.1.jre7'
+    }
+}
 
-apply plugin: 'application'
+apply plugin: 'io.ratpack.ratpack-java'
+apply plugin: 'liquibase'
 
 repositories {
     jcenter()
 }
 
 dependencies {
-    compile 'com.google.guava:guava:23.0'
-    testCompile 'junit:junit:4.12'
+    compile ratpack.dependency('guice')
+    compile ratpack.dependency('session')
+    compile 'org.jdbi:jdbi3-core:3.0.1'
+    compile 'org.jdbi:jdbi3-sqlobject:3.0.1'
+    compile 'com.mchange:c3p0:0.9.5.2'
+    compile 'io.lettuce:lettuce-core:5.0.1.RELEASE'
+}
+
+liquibase {
+    activities {
+        main {
+            changeLogFile 'liquibase/changelog.yml'
+            url 'jdbc:postgresql://localhost:5432/shortly'
+            username 'shortly'
+            password '6t]^yBgX?t{8b5k2?(3D'
+        }
+    }
 }
 
 mainClassName = 'App'

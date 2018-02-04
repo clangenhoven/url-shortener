@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - preConditions:
+    - runningAs:
+        username: shortly
+
+  - changeSet:
+      id: createUrlTable
+      author: clangenhoven
+      changes:
+        - createTable:
+            tableName: url
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: url
+                  type: varchar(1024)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: short_url
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: owner_id
+                  type: bigint
