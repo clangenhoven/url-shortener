@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -56,6 +57,11 @@ public class UrlService {
                 return Optional.<String>empty();
             }
         }).then(callback::accept);
+    }
+
+    public void listUrls(long ownerId, Consumer<List<Url>> urls) {
+        Blocking.get(() -> urlDao.getByOwner(ownerId))
+                .then(urls::accept);
     }
 
     public void lookupUrl(String shortUrl, Consumer<Optional<Url>> callback) {

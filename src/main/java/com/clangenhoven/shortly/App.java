@@ -4,6 +4,7 @@ import com.clangenhoven.shortly.client.LifecycleAwareRedisClient;
 import com.clangenhoven.shortly.config.DevelopmentConfig;
 import com.clangenhoven.shortly.handler.UrlCreator;
 import com.clangenhoven.shortly.handler.UrlHandler;
+import com.clangenhoven.shortly.handler.UrlLister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.groovy.template.TextTemplateModule;
@@ -28,8 +29,9 @@ public class App {
                         .bind(LifecycleAwareRedisClient.class)))
                 .handlers(chain -> chain
                         .post("create", UrlCreator.class)
-                        .prefix("u", c ->
-                                c.get(":shortUrl", UrlHandler.class)
+                        .prefix("u", c -> c
+                                .get(":shortUrl", UrlHandler.class)
+                                .get(UrlLister.class)
                         )
                 )
         );

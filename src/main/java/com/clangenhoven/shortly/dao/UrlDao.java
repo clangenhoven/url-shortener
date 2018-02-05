@@ -6,6 +6,7 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface UrlDao {
@@ -22,4 +23,7 @@ public interface UrlDao {
 
     @SqlQuery("select * from url where short_url = :shortUrl")
     Optional<Url> getByShortUrl(@Bind("shortUrl") String shortUrl);
+
+    @SqlQuery("select * from url where owner_id = :ownerId")
+    List<Url> getByOwner(@Bind("ownerId") long ownerId);
 }
