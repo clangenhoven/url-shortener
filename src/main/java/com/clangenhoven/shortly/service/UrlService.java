@@ -28,8 +28,8 @@ public class UrlService {
 
     private final static Logger logger = LoggerFactory.getLogger(UrlService.class);
 
-    private ObjectMapper objectMapper = new ObjectMapper();
 
+    private final ObjectMapper objectMapper;
     private final UrlDao urlDao;
     private final StatefulRedisConnection<String, String> redisConnection;
     private final Integer cacheTtl;
@@ -37,9 +37,11 @@ public class UrlService {
 
     @Inject
     public UrlService(UrlDao urlDao,
+                      ObjectMapper objectMapper,
                       StatefulRedisConnection<String, String> redisConnection,
                       @Named("cacheTtl") Integer cacheTtl) {
         this.urlDao = urlDao;
+        this.objectMapper = objectMapper;
         this.redisConnection = redisConnection;
         this.cacheTtl = cacheTtl;
         this.rand = new Random(new Date().getTime());
