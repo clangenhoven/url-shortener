@@ -40,6 +40,8 @@ databaseChangeLog:
               - column:
                   name: owner_id
                   type: bigint
+                  constraints:
+                    nullable: false
 
   - changeSet:
       id: createShortUrlIndex
@@ -53,3 +55,16 @@ databaseChangeLog:
           indexName: idx_short_url
           tableName: url
           unique: true
+
+  - changeSet:
+      id: createOwnerIndex
+      author: clangenhoven
+      changes:
+      - createIndex:
+          columns:
+          - column:
+              name: owner_id
+              type: bigint
+          indexName: idx_owner
+          tableName: url
+          unique: false
