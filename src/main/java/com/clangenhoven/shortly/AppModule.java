@@ -103,6 +103,7 @@ public class AppModule extends AbstractModule {
                         rs.getString("url"),
                         rs.getString("short_url"),
                         OffsetDateTime.ofInstant(rs.getTimestamp("created", UTC_CALENDAR).toInstant(), ZoneOffset.UTC),
+                        rs.getLong("access_count"),
                         rs.getLong("owner_id")));
         return jdbi;
     }
