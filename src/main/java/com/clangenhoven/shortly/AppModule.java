@@ -5,7 +5,9 @@ import com.clangenhoven.shortly.handler.UrlCreator;
 import com.clangenhoven.shortly.handler.UrlHandler;
 import com.clangenhoven.shortly.handler.UrlLister;
 import com.clangenhoven.shortly.model.Url;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -20,31 +22,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.error.ClientErrorHandler;
 import ratpack.error.ServerErrorHandler;
+import ratpack.http.MediaType;
 
 import javax.sql.DataSource;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import static ratpack.groovy.Groovy.groovyTemplate;
 
 public class AppModule extends AbstractModule {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppModule.class);
+    private static final Calendar UTC_CALENDAR = Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC));
 
     @Override
     protected void configure() {
-        bind(ObjectMapper.class).toInstance(new ObjectMapper().registerModule(new JavaTimeModule()));
+        bind(Validator.class).toInstance(Validation.buildDefaultValidatorFactory().getValidator());
         bind(UrlHandler.class);
         bind(UrlCreator.class);
         bind(UrlLister.class);
         bind(ClientErrorHandler.class).toInstance((ctx, statusCode) -> {
             ctx.getResponse().status(statusCode);
-            if (statusCode == 404) {
-                ctx.render(groovyTemplate("error404.html"));
-            } else if (statusCode == 401) {
-                ctx.render(groovyTemplate("error401.html"));
-            } else if (statusCode == 403) {
-                ctx.render(groovyTemplate("error403.html"));
+            if (MediaType.APPLICATION_JSON.equals(ctx.getRequest().getContentType().getType())) {
+                ctx.getResponse().send();
+            } else {
+                if (statusCode == 404) {
+                    ctx.render(groovyTemplate("error404.html"));
+                } else if (statusCode == 401) {
+                    ctx.render(groovyTemplate("error401.html"));
+                } else if (statusCode == 403) {
+                    ctx.render(groovyTemplate("error403.html"));
+                }
             }
             LOGGER.error("Client Error Handler returning status code " + statusCode);
         });
@@ -52,6 +64,15 @@ public class AppModule extends AbstractModule {
             LOGGER.error("Server Error Handler caught exception", error);
             ctx.render(groovyTemplate("error500.html"));
         });
+    }
+
+    @Provides
+    @Singleton
+    private ObjectMapper objectMapper() {
+        return new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     @Provides
@@ -81,7 +102,7 @@ public class AppModule extends AbstractModule {
                 new Url(rs.getLong("id"),
                         rs.getString("url"),
                         rs.getString("short_url"),
-                        OffsetDateTime.ofInstant(rs.getTimestamp("created").toInstant(), ZoneOffset.UTC),
+                        OffsetDateTime.ofInstant(rs.getTimestamp("created", UTC_CALENDAR).toInstant(), ZoneOffset.UTC),
                         rs.getLong("owner_id")));
         return jdbi;
     }

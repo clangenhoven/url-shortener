@@ -27,6 +27,8 @@ dependencies {
     compile 'io.lettuce:lettuce-core:5.0.1.RELEASE'
     compile 'ch.qos.logback:logback-classic:1.2.3'
     compile 'org.postgresql:postgresql:42.2.1.jre7'
+    compile 'org.hibernate.validator:hibernate-validator:6.0.7.Final'
+    compile 'org.glassfish:javax.el:3.0.1-b08'
 }
 
 liquibase {

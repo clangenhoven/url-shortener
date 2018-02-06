@@ -24,8 +24,6 @@ public class UrlLister implements Handler {
 
     @Override
     public void handle(Context ctx) throws Exception {
-        urlService.listUrls(1L, urls -> {
-            ctx.render(json(urls));
-        });
+        urlService.listUrls(1L, urls -> ctx.render(json(urls)));
     }
 }

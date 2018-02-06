@@ -1,6 +1,5 @@
 package com.clangenhoven.shortly.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.OffsetDateTime;
@@ -40,7 +39,6 @@ public class Url {
     }
 
     @JsonProperty
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     public OffsetDateTime getCreated() {
         return created;
     }
