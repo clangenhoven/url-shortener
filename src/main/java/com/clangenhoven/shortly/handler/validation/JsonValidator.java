@@ -24,7 +24,9 @@ public abstract class JsonValidator<T> implements Handler {
 
     private Promise<T> parseAndValidate(Context ctx, Class<T> type) {
         return ctx.parse(Jackson.fromJson(type))
-                .route(t -> ctx.get(Validator.class).validate(t).size() > 0,
-                        t -> ctx.clientError(422) /* unprocessable entity */);
+                .route(obj -> ctx.get(Validator.class).validate(obj).size() > 0,
+                        ex -> ctx.clientError(422)) /* failed validation */
+                .onError(ex -> ctx.clientError(400)); /* failed to parse body */
+
     }
 }
