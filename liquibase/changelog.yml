@@ -4,11 +4,11 @@ databaseChangeLog:
         username: shortly
 
   - changeSet:
-      id: createUrlTable
+      id: createUrlsTable
       author: clangenhoven
       changes:
         - createTable:
-            tableName: url
+            tableName: urls
             columns:
               - column:
                   name: id
@@ -53,7 +53,7 @@ databaseChangeLog:
               name: short_url
               type: varchar(50)
           indexName: idx_short_url
-          tableName: url
+          tableName: urls
           unique: true
 
   - changeSet:
@@ -66,15 +66,15 @@ databaseChangeLog:
               name: owner_id
               type: bigint
           indexName: idx_owner
-          tableName: url
+          tableName: urls
           unique: false
 
   - changeSet:
-      id: createUserTable
+      id: createUsersTable
       author: clangenhoven
       changes:
       - createTable:
-          tableName: user
+          tableName: users
           columns:
             - column:
                 name: id
@@ -104,5 +104,5 @@ databaseChangeLog:
               name: username
               type: varchar(50)
           indexName: idx_username
-          tableName: user
+          tableName: users
           unique: true

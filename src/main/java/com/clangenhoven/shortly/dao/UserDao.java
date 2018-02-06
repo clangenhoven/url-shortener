@@ -9,9 +9,9 @@ import java.util.Optional;
 
 public interface UserDao {
 
-    @SqlUpdate("insert into user (username, hashed_password) values (:username, :hashedPassword)")
+    @SqlUpdate("insert into users (username, hashed_password) values (:username, :hashedPassword)")
     void insertUser(@Bind("username") String username, @Bind("hashedPassword") String hashedPassword);
 
-    @SqlQuery("select * from user where username = :username")
+    @SqlQuery("select * from users where username = :username")
     Optional<User> getByUsername(@Bind("username") String username);
 }
