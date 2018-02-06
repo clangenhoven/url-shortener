@@ -5,6 +5,7 @@ import com.clangenhoven.shortly.model.CreateUrlRequest;
 import com.clangenhoven.shortly.service.UrlService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.pac4j.core.profile.UserProfile;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
 
@@ -20,8 +21,10 @@ public class UrlCreator extends JsonValidator<CreateUrlRequest> implements Handl
     }
 
     @Override
-    protected void handle(Context ctx, CreateUrlRequest object) {
-        urlService.createUrl(object, 1, result -> {
+    protected void handle(Context ctx, CreateUrlRequest request) {
+        UserProfile profile = ctx.get(UserProfile.class);
+        Long id = profile.getAttribute("id", Long.class);
+        urlService.createUrl(request, id, result -> {
             if (result.isPresent()) {
                 ctx.render(result.get());
             } else {

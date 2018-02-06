@@ -28,7 +28,6 @@ public class UrlService {
 
     private final static Logger logger = LoggerFactory.getLogger(UrlService.class);
 
-
     private final ObjectMapper objectMapper;
     private final UrlDao urlDao;
     private final StatefulRedisConnection<String, String> redisConnection;

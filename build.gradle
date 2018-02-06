@@ -20,7 +20,10 @@ repositories {
 
 dependencies {
     compile ratpack.dependency('guice')
-    compile ratpack.dependency("groovy")
+    compile ratpack.dependency('groovy')
+    compile ratpack.dependency('session')
+    compile ratpack.dependency('pac4j')
+    compile 'commons-codec:commons-codec:1.10'
     compile 'org.jdbi:jdbi3-core:3.0.1'
     compile 'org.jdbi:jdbi3-sqlobject:3.0.1'
     compile 'com.mchange:c3p0:0.9.5.2'
@@ -29,6 +32,8 @@ dependencies {
     compile 'org.postgresql:postgresql:42.2.1.jre7'
     compile 'org.hibernate.validator:hibernate-validator:6.0.7.Final'
     compile 'org.glassfish:javax.el:3.0.1-b08'
+    compile 'org.pac4j:pac4j-http:1.8.9'
+    compile 'org.apache.shiro:shiro-core:1.4.0'
 }
 
 liquibase {

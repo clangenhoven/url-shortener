@@ -1,10 +1,15 @@
 package com.clangenhoven.shortly;
 
+import com.clangenhoven.shortly.auth.Authenticator;
 import com.clangenhoven.shortly.dao.UrlDao;
+import com.clangenhoven.shortly.dao.UserDao;
 import com.clangenhoven.shortly.handler.UrlCreator;
 import com.clangenhoven.shortly.handler.UrlHandler;
 import com.clangenhoven.shortly.handler.UrlLister;
+import com.clangenhoven.shortly.handler.UrlRedirector;
+import com.clangenhoven.shortly.handler.UserCreator;
 import com.clangenhoven.shortly.model.Url;
+import com.clangenhoven.shortly.model.User;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -16,13 +21,21 @@ import com.google.inject.name.Named;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.netty.buffer.ByteBuf;
+import io.netty.util.AsciiString;
+import org.apache.shiro.authc.credential.DefaultPasswordService;
+import org.apache.shiro.authc.credential.PasswordService;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.error.ClientErrorHandler;
 import ratpack.error.ServerErrorHandler;
+import ratpack.exec.Operation;
+import ratpack.exec.Promise;
 import ratpack.http.MediaType;
+import ratpack.session.SessionStore;
 
 import javax.sql.DataSource;
 import javax.validation.Validation;
@@ -41,8 +54,13 @@ public class AppModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        bind(SessionStore.class).to(NoOpSessionStore.class);
+        bind(Authenticator.class);
+        bind(PasswordService.class).to(DefaultPasswordService.class);
         bind(Validator.class).toInstance(Validation.buildDefaultValidatorFactory().getValidator());
+        bind(UserCreator.class);
         bind(UrlHandler.class);
+        bind(UrlRedirector.class);
         bind(UrlCreator.class);
         bind(UrlLister.class);
         bind(ClientErrorHandler.class).toInstance((ctx, statusCode) -> {
@@ -68,6 +86,12 @@ public class AppModule extends AbstractModule {
 
     @Provides
     @Singleton
+    private DirectBasicAuthClient directBasicAuthClient(Authenticator authenticator) {
+        return new DirectBasicAuthClient(authenticator);
+    }
+
+    @Provides
+    @Singleton
     private ObjectMapper objectMapper() {
         return new ObjectMapper()
                 .registerModule(new JavaTimeModule())
@@ -89,6 +113,12 @@ public class AppModule extends AbstractModule {
 
     @Provides
     @Singleton
+    private UserDao userDao(Jdbi jdbi) {
+        return jdbi.onDemand(UserDao.class);
+    }
+
+    @Provides
+    @Singleton
     private UrlDao urlDAO(Jdbi jdbi) {
         return jdbi.onDemand(UrlDao.class);
     }
@@ -105,6 +135,10 @@ public class AppModule extends AbstractModule {
                         OffsetDateTime.ofInstant(rs.getTimestamp("created", UTC_CALENDAR).toInstant(), ZoneOffset.UTC),
                         rs.getLong("access_count"),
                         rs.getLong("owner_id")));
+        jdbi.registerRowMapper(User.class, (rs, ctx) ->
+                new User(rs.getLong("id"),
+                        rs.getString("username"),
+                        rs.getString("hashed_password")));
         return jdbi;
     }
 

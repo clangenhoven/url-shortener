@@ -68,3 +68,41 @@ databaseChangeLog:
           indexName: idx_owner
           tableName: url
           unique: false
+
+  - changeSet:
+      id: createUserTable
+      author: clangenhoven
+      changes:
+      - createTable:
+          tableName: user
+          columns:
+            - column:
+                name: id
+                type: bigint
+                autoIncrement: true
+                constraints:
+                  primaryKey: true
+                  nullable: false
+            - column:
+                name: username
+                type: varchar(50)
+                constraints:
+                  nullable: false
+            - column:
+                name: hashed_password
+                type: varchar(128)
+                constraints:
+                  nullable: false
+
+  - changeSet:
+      id: createUsernameIndex
+      author: clangenhoven
+      changes:
+      - createIndex:
+          columns:
+          - column:
+              name: username
+              type: varchar(50)
+          indexName: idx_username
+          tableName: user
+          unique: true
