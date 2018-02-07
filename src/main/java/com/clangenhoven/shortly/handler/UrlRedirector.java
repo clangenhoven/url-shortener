@@ -18,7 +18,7 @@ public class UrlRedirector implements Handler {
 
     @Override
     public void handle(Context ctx) throws Exception {
-        urlService.lookupUrl(ctx.getPathTokens().get("shortUrl"), result -> {
+        urlService.lookupUrl(ctx.getPathTokens().get("shortUrl")).then(result -> {
             if (result.isPresent()) {
                 ctx.redirect(result.get().getUrl());
             } else {

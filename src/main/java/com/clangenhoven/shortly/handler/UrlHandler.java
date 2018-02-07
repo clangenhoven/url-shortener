@@ -23,8 +23,8 @@ public class UrlHandler implements Handler {
     public void handle(Context ctx) throws Exception {
         UserProfile profile = ctx.get(UserProfile.class);
         Long id = profile.getAttribute("id", Long.class);
-        urlService.lookupUrlBypassCache(ctx.getPathTokens().get("shortUrl"), result -> {
-            if (result.isPresent() && id.equals(result.get().getId())) {
+        urlService.lookupUrlBypassCache(ctx.getPathTokens().get("shortUrl")).then(result -> {
+            if (result.isPresent() && id.equals(result.get().getOwnerId())) {
                 ctx.render(json(result.get()));
             } else {
                 ctx.notFound();

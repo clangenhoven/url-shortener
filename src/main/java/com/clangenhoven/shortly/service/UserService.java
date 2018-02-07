@@ -7,9 +7,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.shiro.authc.credential.PasswordService;
 import ratpack.exec.Blocking;
+import ratpack.exec.Promise;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 @Singleton
 public class UserService {
@@ -23,11 +23,11 @@ public class UserService {
         this.passwordService = passwordService;
     }
 
-    public void createUser(CreateUserRequest request, Consumer<Boolean> callback) {
-        Blocking.get(() -> {
+    public Promise<Boolean> createUser(CreateUserRequest request) {
+        return Blocking.get(() -> {
             userDao.insertUser(request.getUsername(), passwordService.encryptPassword(request.getPassword()));
             return true;
-        }).then(callback::accept);
+        });
     }
 
     public Optional<User> getByUsername(String username) {

@@ -12,6 +12,7 @@ import io.lettuce.core.api.sync.RedisCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.exec.Blocking;
+import ratpack.exec.Promise;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -21,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.Consumer;
 
 @Singleton
 public class UrlService {
@@ -46,8 +46,8 @@ public class UrlService {
         this.rand = new Random(new Date().getTime());
     }
 
-    public void createUrl(CreateUrlRequest request, long ownerId, Consumer<Optional<String>> callback) {
-        Blocking.get(() -> {
+    public Promise<Optional<String>> createUrl(CreateUrlRequest request, long ownerId) {
+        return Blocking.get(() -> {
             String shortUrl = request.getShortUrl() == null ? Long.toHexString(rand.nextLong()) : request.getShortUrl();
             try {
                 LocalDateTime localDateTime = OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
@@ -57,38 +57,36 @@ public class UrlService {
                 logger.error("Caught exception while trying to create short url", e);
                 return Optional.<String>empty();
             }
-        }).then(callback::accept);
+        });
     }
 
-    public void listUrls(long ownerId, Consumer<List<Url>> urls) {
-        Blocking.get(() -> urlDao.getByOwner(ownerId))
-                .then(urls::accept);
+    public Promise<List<Url>> listUrls(long ownerId) {
+        return Blocking.get(() -> urlDao.getByOwner(ownerId));
     }
 
-    public void lookupUrlBypassCache(String shortUrl, Consumer<Optional<Url>> callback) {
-        Blocking.get(() -> urlDao.getByShortUrl(shortUrl))
-                .then(callback::accept);
+    public Promise<Optional<Url>> lookupUrlBypassCache(String shortUrl) {
+        return Blocking.get(() -> urlDao.getByShortUrl(shortUrl));
     }
 
-    public void lookupUrl(String shortUrl, Consumer<Optional<Url>> callback) {
+    public Promise<Optional<Url>> lookupUrl(String shortUrl) {
         RedisCommands<String, String> sync = redisConnection.sync();
-        Blocking.get(() -> Optional.ofNullable(sync.get(shortUrl)))
-                .then(result -> {
-                    Optional<Url> maybeUrl = result.flatMap(s -> {
-                        try {
-                            return Optional.of(objectMapper.readValue(s, Url.class));
-                        } catch (IOException e) {
-                            logger.error("Failed to JSON decode Url object from string: '" + s + "'", e);
-                            return Optional.empty();
-                        }
-                    });
+        return Blocking.get(() -> Optional.ofNullable(sync.get(shortUrl)))
+                .map(result -> result.flatMap(json -> {
+                    try {
+                        return Optional.of(objectMapper.readValue(json, Url.class));
+                    } catch (IOException e) {
+                        logger.error("Failed to JSON decode Url object from string: '" + json + "'", e);
+                        return Optional.empty();
+                    }
+                }))
+                .flatMap(maybeUrl -> {
                     if (maybeUrl.isPresent()) {
                         logger.info("Found entry in cache for short url " + shortUrl);
                         Blocking.exec(() -> urlDao.incrementUsage(maybeUrl.get().getId()));
-                        callback.accept(maybeUrl);
+                        return Promise.value(maybeUrl);
                     } else {
-                        Blocking.get(() -> urlDao.getByShortUrl(shortUrl))
-                                .then(o -> {
+                        return Blocking.get(() -> urlDao.getByShortUrl(shortUrl))
+                                .map(o -> {
                                     if (o.isPresent()) {
                                         logger.info("Found entry in database for short url " + shortUrl);
                                         Blocking.exec(() -> urlDao.incrementUsage(o.get().getId()));
@@ -97,7 +95,7 @@ public class UrlService {
                                     } else {
                                         logger.info("Did not find entry in cache or database for short url " + shortUrl);
                                     }
-                                    callback.accept(o);
+                                    return o;
                                 });
                     }
                 });

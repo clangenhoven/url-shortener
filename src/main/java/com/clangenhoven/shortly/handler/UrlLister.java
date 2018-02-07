@@ -27,6 +27,6 @@ public class UrlLister implements Handler {
     public void handle(Context ctx) throws Exception {
         UserProfile profile = ctx.get(UserProfile.class);
         Long id = profile.getAttribute("id", Long.class);
-        urlService.listUrls(id, urls -> ctx.render(json(urls)));
+        urlService.listUrls(id).then(urls -> ctx.render(json(urls)));
     }
 }

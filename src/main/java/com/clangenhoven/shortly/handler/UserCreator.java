@@ -21,7 +21,7 @@ public class UserCreator extends JsonValidator<CreateUserRequest> implements Han
 
     @Override
     protected void handle(Context ctx, CreateUserRequest request) {
-        userService.createUser(request, success -> {
+        userService.createUser(request).then(success -> {
             if (success) {
                 ctx.getResponse().status(200).send();
             }

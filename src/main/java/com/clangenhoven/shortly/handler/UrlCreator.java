@@ -24,7 +24,7 @@ public class UrlCreator extends JsonValidator<CreateUrlRequest> implements Handl
     protected void handle(Context ctx, CreateUrlRequest request) {
         UserProfile profile = ctx.get(UserProfile.class);
         Long id = profile.getAttribute("id", Long.class);
-        urlService.createUrl(request, id, result -> {
+        urlService.createUrl(request, id).then(result -> {
             if (result.isPresent()) {
                 ctx.render(result.get());
             } else {
