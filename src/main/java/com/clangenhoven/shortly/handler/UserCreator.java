@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
+import ratpack.http.Response;
 
 @Singleton
 public class UserCreator extends JsonValidator<CreateUserRequest> implements Handler {
@@ -22,8 +23,11 @@ public class UserCreator extends JsonValidator<CreateUserRequest> implements Han
     @Override
     protected void handle(Context ctx, CreateUserRequest request) {
         userService.createUser(request).then(success -> {
+            Response response = ctx.getResponse();
             if (success) {
-                ctx.getResponse().status(200).send();
+                response.status(200).send();
+            } else {
+                response.status(400).send();
             }
         });
     }
