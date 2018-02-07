@@ -10,6 +10,8 @@ import com.clangenhoven.shortly.handler.UrlRedirector;
 import com.clangenhoven.shortly.handler.UserCreator;
 import com.clangenhoven.shortly.model.Url;
 import com.clangenhoven.shortly.model.User;
+import com.clangenhoven.shortly.service.RandomShortUrlGenerator;
+import com.clangenhoven.shortly.service.ShortUrlGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -64,6 +66,7 @@ public class AppModule extends AbstractModule {
         bind(UrlRedirector.class);
         bind(UrlCreator.class);
         bind(UrlLister.class);
+        bind(ShortUrlGenerator.class).to(RandomShortUrlGenerator.class);
         bind(ClientErrorHandler.class).toInstance((ctx, statusCode) -> {
             Response response = ctx.getResponse();
             response.status(statusCode);

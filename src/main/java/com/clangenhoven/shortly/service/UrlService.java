@@ -18,10 +18,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Singleton
 public class UrlService {
@@ -32,23 +30,24 @@ public class UrlService {
     private final UrlDao urlDao;
     private final StatefulRedisConnection<String, String> redisConnection;
     private final Integer cacheTtl;
-    private final Random rand;
+    private final ShortUrlGenerator generator;
 
     @Inject
     public UrlService(UrlDao urlDao,
                       ObjectMapper objectMapper,
                       StatefulRedisConnection<String, String> redisConnection,
-                      @Named("cacheTtl") Integer cacheTtl) {
+                      @Named("cacheTtl") Integer cacheTtl,
+                      ShortUrlGenerator generator) {
         this.urlDao = urlDao;
         this.objectMapper = objectMapper;
         this.redisConnection = redisConnection;
         this.cacheTtl = cacheTtl;
-        this.rand = new Random(new Date().getTime());
+        this.generator = generator;
     }
 
     public Promise<Optional<String>> createUrl(CreateUrlRequest request, long ownerId) {
         return Blocking.get(() -> {
-            String shortUrl = request.getShortUrl() == null ? Long.toHexString(rand.nextLong()) : request.getShortUrl();
+            String shortUrl = request.getShortUrl() == null ? generator.generateUrl() : request.getShortUrl();
             try {
                 LocalDateTime localDateTime = OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
                 urlDao.insert(request.getUrl(), shortUrl, localDateTime, ownerId);
