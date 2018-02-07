@@ -16,6 +16,10 @@ public class CreateUrlRequest {
     public CreateUrlRequest() {
     }
 
+    public CreateUrlRequest(String url) {
+        this.url = url;
+    }
+
     public CreateUrlRequest(String url, String shortUrl) {
         this.url = url;
         this.shortUrl = shortUrl;

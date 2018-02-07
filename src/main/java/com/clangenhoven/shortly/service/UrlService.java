@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,19 +27,19 @@ public class UrlService {
 
     private final ObjectMapper objectMapper;
     private final UrlDao urlDao;
-    private final StatefulRedisConnection<String, String> redisConnection;
+    private final RedisCommands<String, String> sync;
     private final Integer cacheTtl;
     private final ShortUrlGenerator generator;
 
     @Inject
     public UrlService(UrlDao urlDao,
                       ObjectMapper objectMapper,
-                      StatefulRedisConnection<String, String> redisConnection,
+                      RedisCommands<String, String> sync,
                       @Named("cacheTtl") Integer cacheTtl,
                       ShortUrlGenerator generator) {
         this.urlDao = urlDao;
         this.objectMapper = objectMapper;
-        this.redisConnection = redisConnection;
+        this.sync = sync;
         this.cacheTtl = cacheTtl;
         this.generator = generator;
     }
@@ -68,7 +67,6 @@ public class UrlService {
     }
 
     public Promise<Optional<Url>> lookupUrl(String shortUrl) {
-        RedisCommands<String, String> sync = redisConnection.sync();
         return Blocking.get(() -> Optional.ofNullable(sync.get(shortUrl)))
                 .map(result -> result.flatMap(json -> {
                     try {

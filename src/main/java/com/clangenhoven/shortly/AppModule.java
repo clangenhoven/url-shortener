@@ -22,9 +22,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.netty.buffer.ByteBuf;
-import io.netty.util.AsciiString;
+import io.lettuce.core.api.sync.RedisCommands;
 import org.apache.shiro.authc.credential.DefaultPasswordService;
 import org.apache.shiro.authc.credential.PasswordService;
 import org.jdbi.v3.core.Jdbi;
@@ -34,8 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.error.ClientErrorHandler;
 import ratpack.error.ServerErrorHandler;
-import ratpack.exec.Operation;
-import ratpack.exec.Promise;
 import ratpack.http.MediaType;
 import ratpack.http.Response;
 import ratpack.session.SessionStore;
@@ -107,8 +103,8 @@ public class AppModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private StatefulRedisConnection<String, String> redisConnection(RedisClient redisClient) {
-        return redisClient.connect();
+    private RedisCommands<String, String> sync(RedisClient redisClient) {
+        return redisClient.connect().sync();
     }
 
     @Provides
