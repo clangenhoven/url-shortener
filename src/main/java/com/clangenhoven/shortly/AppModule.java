@@ -35,6 +35,7 @@ import ratpack.error.ServerErrorHandler;
 import ratpack.exec.Operation;
 import ratpack.exec.Promise;
 import ratpack.http.MediaType;
+import ratpack.http.Response;
 import ratpack.session.SessionStore;
 
 import javax.sql.DataSource;
@@ -64,14 +65,16 @@ public class AppModule extends AbstractModule {
         bind(UrlCreator.class);
         bind(UrlLister.class);
         bind(ClientErrorHandler.class).toInstance((ctx, statusCode) -> {
-            ctx.getResponse().status(statusCode);
+            Response response = ctx.getResponse();
+            response.status(statusCode);
             if (MediaType.APPLICATION_JSON.equals(ctx.getRequest().getContentType().getType())) {
-                ctx.getResponse().send();
+                response.send();
             } else {
                 if (statusCode == 404) {
                     ctx.render(groovyTemplate("error404.html"));
                 } else if (statusCode == 401) {
-                    ctx.render(groovyTemplate("error401.html"));
+                    response.getHeaders().set("WWW-Authenticate", "Basic");
+                    response.send();
                 } else if (statusCode == 403) {
                     ctx.render(groovyTemplate("error403.html"));
                 }
