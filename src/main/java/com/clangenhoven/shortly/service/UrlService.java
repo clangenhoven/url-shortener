@@ -65,6 +65,11 @@ public class UrlService {
                 .then(urls::accept);
     }
 
+    public void lookupUrlBypassCache(String shortUrl, Consumer<Optional<Url>> callback) {
+        Blocking.get(() -> urlDao.getByShortUrl(shortUrl))
+                .then(callback::accept);
+    }
+
     public void lookupUrl(String shortUrl, Consumer<Optional<Url>> callback) {
         RedisCommands<String, String> sync = redisConnection.sync();
         Blocking.get(() -> Optional.ofNullable(sync.get(shortUrl)))
