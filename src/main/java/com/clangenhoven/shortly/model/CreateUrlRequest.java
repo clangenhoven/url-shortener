@@ -34,7 +34,7 @@ public class CreateUrlRequest {
     }
 
     @JsonProperty
-    @Pattern(regexp = "^\\S+$")
+    @Pattern(regexp = "^[A-Za-z0-9_-]+$")
     @Length(min = 1, max = 23)
     public String getShortUrl() {
         return shortUrl;

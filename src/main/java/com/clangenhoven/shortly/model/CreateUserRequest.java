@@ -1,6 +1,7 @@
 package com.clangenhoven.shortly.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
 
@@ -19,12 +20,14 @@ public class CreateUserRequest {
 
     @JsonProperty
     @NotNull
+    @Length(min = 3, max = 50)
     public String getUsername() {
         return username;
     }
 
     @JsonProperty
     @NotNull
+    @Length(min = 6, max = 50)
     public String getPassword() {
         return password;
     }
